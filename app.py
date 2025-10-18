@@ -1,17 +1,23 @@
 from flask import Flask, render_template, request
 import joblib
 import numpy as np
+import os
 
 app = Flask(__name__)
 
+# Define model path safely for Render/Linux
+model_path = os.path.join('model', 'car_price_model.pkl')
+encoder_path = os.path.join('model', 'encoders.pkl')
+
 # Load model and encoders
-model = joblib.load('model\\car_price_model.pkl')
-encoders = joblib.load('model\\encoders.pkl')
+model = joblib.load(model_path)
+encoders = joblib.load(encoder_path)
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -35,5 +41,7 @@ def predict():
 
     return render_template('index.html', prediction_text=f"💰 Estimated Price: ₹{int(prediction):,}")
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Don't use debug=True on Render
+    app.run(host='0.0.0.0', port=10000)

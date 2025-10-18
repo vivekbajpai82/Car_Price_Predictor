@@ -4,10 +4,13 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
+import joblib
+import os
 
-# Load data
-df = pd.read_csv(r"C:\Users\ashut\OneDrive\Desktop\ml2\Cleaned_Car_data.csv")
-df = df.drop(columns=['Unnamed: 0'])
+# Use relative path for CSV file
+data_path = os.path.join('Cleaned_Car_data.csv')
+df = pd.read_csv(data_path)
+df = df.drop(columns=['Unnamed: 0'], errors='ignore')
 
 # Encode categorical variables
 label_encoders = {}
@@ -31,13 +34,10 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 print("R² Score:", r2_score(y_test, y_pred))
 print("RMSE:", np.sqrt(mean_squared_error(y_test, y_pred)))
-import joblib
 
-# Save the model to a file
-joblib.dump(model, 'car_price_model.pkl')
-print("✅ Model saved as car_price_model.pkl")
-# Save the label encoders
-encoders_to_save = {col: le for col, le in label_encoders.items()}
-joblib.dump(encoders_to_save, 'encoders.pkl')
-print("✅ Encoders saved as encoders.pkl")
+# Save model and encoders
+os.makedirs('model', exist_ok=True)
+joblib.dump(model, os.path.join('model', 'car_price_model.pkl'))
+joblib.dump(label_encoders, os.path.join('model', 'encoders.pkl'))
 
+print("✅ Model and encoders saved successfully in 'model/' folder.")
